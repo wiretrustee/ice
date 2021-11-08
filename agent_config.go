@@ -50,7 +50,8 @@ func defaultCandidateTypes() []CandidateType {
 // AgentConfig collects the arguments to ice.Agent construction into
 // a single structure, for future-proofness of the interface
 type AgentConfig struct {
-	Urls []*URL
+	activeTCP bool
+	Urls      []*URL
 
 	// PortMin and PortMax are optional. Leave them 0 for the default UDP port allocation strategy.
 	PortMin uint16
