@@ -202,10 +202,6 @@ func (c *candidateBase) start(a *Agent, conn net.PacketConn, initializedCh <-cha
 	c.closeCh = make(chan struct{})
 	c.closedCh = make(chan struct{})
 
-	// if c.tcpType == TCPTypeActive {
-	// 	return
-	// }
-
 	go c.recvLoop(initializedCh)
 }
 

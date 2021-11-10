@@ -94,7 +94,8 @@ type Agent struct {
 	remotePwd        string
 	remoteCandidates map[NetworkType][]Candidate
 
-	activeTCP bool
+	activeTCP         bool
+	tcpReadBufferSize int
 
 	checklist []*CandidatePair
 	selector  pairCandidateSelector
@@ -314,6 +315,12 @@ func NewAgent(config *AgentConfig) (*Agent, error) { //nolint:gocognit
 
 		insecureSkipVerify: config.InsecureSkipVerify,
 		activeTCP:          config.activeTCP,
+	}
+
+	const defaultTCPReadBufferSize = 8
+	a.tcpReadBufferSize = config.tcpReadBufferSize
+	if a.tcpReadBufferSize == 0 {
+		a.tcpReadBufferSize = defaultTCPReadBufferSize
 	}
 
 	a.tcpMux = config.TCPMux
@@ -658,7 +665,7 @@ func (a *Agent) addPair(local, remote Candidate) *CandidatePair {
 		a.log.Debugf("artur, addressToConnect %s", addressToConnect)
 
 		//connect
-		conn, err := net.Dial("tcp4", addressToConnect)
+		conn, err := net.Dial("tcp", addressToConnect)
 		if err != nil {
 			panic(err)
 		}
@@ -666,7 +673,7 @@ func (a *Agent) addPair(local, remote Candidate) *CandidatePair {
 
 		//create PacketCon from tcp connection
 		packetConn := newTCPPacketConn(tcpPacketParams{
-			ReadBuffer: 10000,
+			ReadBuffer: a.tcpReadBufferSize,
 			LocalAddr:  conn.LocalAddr(),
 			Logger:     a.log,
 		})
