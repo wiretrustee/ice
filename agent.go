@@ -690,7 +690,7 @@ func (a *Agent) addPair(local, remote Candidate) *CandidatePair {
 		}
 
 		localCandidateHost := local.(*CandidateHost)
-		localCandidateHost.port = localPort
+		localCandidateHost.port = localPort // FIXME: this causes a data race with candidateBase.Port()
 
 		local.start(a, packetConn, a.startedCh)
 	}
