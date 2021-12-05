@@ -658,7 +658,6 @@ func (a *Agent) getBestValidCandidatePair() *CandidatePair {
 }
 
 func (a *Agent) addPair(local, remote Candidate) *CandidatePair {
-
 	if local.TCPType() == TCPTypeActive && remote.TCPType() == TCPTypePassive {
 		a.log.Debugf("artur, addPair: local %s, remote %s", local, remote)
 		addressToConnect := remote.Address() + ":" + fmt.Sprint(remote.Port())
@@ -684,7 +683,7 @@ func (a *Agent) addPair(local, remote Candidate) *CandidatePair {
 			return nil
 		}
 
-		//updating local candidate with its real local port
+		// updating local candidate with its real local port
 		localPort, err := strconv.Atoi(strings.Split(conn.LocalAddr().String(), ":")[1])
 		if err != nil {
 			panic(err)
@@ -993,8 +992,8 @@ func (a *Agent) findRemoteCandidate(networkType NetworkType, addr net.Addr) Cand
 	set := a.remoteCandidates[networkType]
 	for _, c := range set {
 		if c.Address() == ip.String() && c.TCPType() == TCPTypeActive && c.Port() == 0 {
-			//remote active TCP candidate, locally port was zero ()
-			//change port to match remote candidate
+			// remote active TCP candidate, locally port was zero ()
+			// change port to match remote candidate
 			candidateRemote := c.(*CandidateHost)
 			candidateRemote.port = port
 			candidateRemote.resolvedAddr = createAddr(networkType, ip, port)
