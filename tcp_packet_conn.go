@@ -1,6 +1,7 @@
 package ice
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -151,6 +152,11 @@ func (t *tcpPacketConn) WriteTo(buf []byte, raddr net.Addr) (n int, err error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
+	t.params.Logger.Debugf("raddr: %+v", raddr)
+	if raddr == nil {
+		return 0, errors.New("raddr is nil") // TODO: what error best represnts this?
+	}
+	// FIXME: raddr.String() causes segfaults
 	conn, ok := t.conns[raddr.String()]
 	if !ok {
 		return 0, io.ErrClosedPipe
