@@ -679,7 +679,10 @@ func (a *Agent) addPair(local, remote Candidate) *CandidatePair {
 			Logger:     a.log,
 		})
 
-		packetConn.AddConn(conn, nil)
+		if err = packetConn.AddConn(conn, nil); err != nil {
+			a.log.Errorf("Failed to add TCP connection: %v", err)
+			return nil
+		}
 
 		//updating local candidate with its real local port
 		localPort, err := strconv.Atoi(strings.Split(conn.LocalAddr().String(), ":")[1])
