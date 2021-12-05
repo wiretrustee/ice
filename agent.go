@@ -664,14 +664,15 @@ func (a *Agent) addPair(local, remote Candidate) *CandidatePair {
 		addressToConnect := remote.Address() + ":" + fmt.Sprint(remote.Port())
 		a.log.Debugf("artur, addressToConnect %s", addressToConnect)
 
-		//connect
+		// connect
 		conn, err := net.Dial("tcp", addressToConnect)
 		if err != nil {
-			panic(err)
+			a.log.Errorf("Failed to dial TCP address %s: %v", addressToConnect, err)
+			return nil
 		}
 		a.log.Debugf("artur, socket connected, local %s, remote %s", conn.LocalAddr(), conn.RemoteAddr())
 
-		//create PacketCon from tcp connection
+		// create PacketCon from tcp connection
 		packetConn := newTCPPacketConn(tcpPacketParams{
 			ReadBuffer: a.tcpReadBufferSize,
 			LocalAddr:  conn.LocalAddr(),
