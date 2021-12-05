@@ -17,6 +17,7 @@ cgojin <gongjin21@hotmail.com>
 Chao Yuan <yuanchao0310@163.com>
 David Hamilton <davidhamiltron@gmail.com>
 David Zhao <david@davidzhao.com>
+Devin Gunay <devingunay@gmail.com>
 Henry <cryptix@riseup.net>
 hn8 <10730886+hn8@users.noreply.github.com>
 Hugo Arregui <hugo.arregui@gmail.com>

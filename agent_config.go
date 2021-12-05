@@ -145,7 +145,6 @@ type AgentConfig struct {
 	// experimental and the API might change in the future.
 	TCPMux TCPMux
 
-	// TODO Add docs
 	activeTCP         bool
 	tcpReadBufferSize int
 
