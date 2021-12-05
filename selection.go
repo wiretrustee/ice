@@ -179,7 +179,6 @@ func (s *controlledSelector) ContactCandidates() {
 }
 
 func (s *controlledSelector) PingCandidate(local, remote Candidate) {
-
 	if remote.Port() == 0 {
 		return
 	}

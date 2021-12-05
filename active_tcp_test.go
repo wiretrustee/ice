@@ -84,9 +84,9 @@ func TestActiveTCP(t *testing.T) {
 	r.NoError(err)
 	r.Equal(data2, buffer[:n])
 
-	//r.NoError(activeAgenConn.Close())
-	//r.NoError(passiveAgentConn.Close())
-	//r.NoError(tcpMux.Close())
+	// r.NoError(activeAgenConn.Close())
+	// r.NoError(passiveAgentConn.Close())
+	// r.NoError(tcpMux.Close())
 }
 
 func TestUDP(t *testing.T) {
