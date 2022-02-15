@@ -16,7 +16,7 @@ type UniversalUDPMux interface {
 	UDPMux
 	GetXORMappedAddr(stunAddr net.Addr, deadline time.Duration) (*stun.XORMappedAddress, error)
 	GetRelayedAddr(turnAddr net.Addr, deadline time.Duration) (*net.Addr, error)
-	GetConnForCandidate(ufrag string, network string, candidateType string) (net.PacketConn, error)
+	GetConnForURL(ufrag string, url string) (net.PacketConn, error)
 }
 
 type UniversalUDPMuxDefault struct {
@@ -67,7 +67,7 @@ func NewUniversalUDPMuxDefault(params UniversalUDPMuxParams) *UniversalUDPMuxDef
 	return m
 }
 
-// udpCOnn is a wrapper around UDPMux conn that overrides ReadFrom and handles additional
+// udpConn is a wrapper around UDPMux conn that overrides ReadFrom and handles additional
 type udpConn struct {
 	net.PacketConn
 	mux    *UniversalUDPMuxDefault
@@ -78,9 +78,8 @@ func (m *UniversalUDPMuxDefault) GetRelayedAddr(turnAddr net.Addr, deadline time
 	return nil, fmt.Errorf("not implemented yet")
 }
 
-func (m *UniversalUDPMuxDefault) GetConnForCandidate(ufrag string, network string, candidateType string) (net.PacketConn, error) {
-	//return m.UDPMuxDefault.GetConn(fmt.Sprintf("%s|%s|%s", ufrag, network, candidateType))
-	return m.UDPMuxDefault.GetConn(ufrag)
+func (m *UniversalUDPMuxDefault) GetConnForURL(ufrag string, url string) (net.PacketConn, error) {
+	return m.UDPMuxDefault.GetConn(fmt.Sprintf("%s|%s", ufrag, url))
 }
 
 func (c *udpConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
@@ -106,7 +105,6 @@ func (c *udpConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
 		}
 
 		if c.mux.isXORMappedResponse(msg, udpAddr.String()) {
-			fmt.Printf("handling STUN response %s\n", udpAddr.String())
 			err = c.mux.handleXORMappedResponse(udpAddr, msg)
 			if err != nil {
 				c.logger.Debugf("%w: %v", errGetXorMappedAddrResponse, err)
@@ -122,6 +120,7 @@ func (c *udpConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
 func (m *UniversalUDPMuxDefault) isXORMappedResponse(msg *stun.Message, stunAddr string) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	// check first if it is a STUN server address first because remote peer can also send similar messages but as a BindingSuccess
 	_, ok := m.xorMappedAddr[stunAddr]
 	_, err := msg.Get(stun.AttrXORMappedAddress)
 	return err == nil && ok

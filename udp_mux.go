@@ -99,8 +99,12 @@ func (m *UDPMuxDefault) GetConn(ufrag string) (net.PacketConn, error) {
 	return c, nil
 }
 
-// RemoveConnByUfrag stops and removes the muxed packet connection
+// RemoveConnByUfrag stops and removes the all muxed packet connections with a ufrag prefix
 func (m *UDPMuxDefault) RemoveConnByUfrag(ufrag string) {
+	// it happens probably when we close not yet initialized agent
+	if ufrag == "" {
+		return
+	}
 	m.mu.Lock()
 	removedConns := make([]*udpMuxedConn, 0)
 	for key := range m.conns {
@@ -110,7 +114,6 @@ func (m *UDPMuxDefault) RemoveConnByUfrag(ufrag string) {
 
 		c := m.conns[key]
 		delete(m.conns, key)
-		fmt.Printf("removed ufrag %s\n", key)
 		if c != nil {
 			removedConns = append(removedConns, c)
 		}
@@ -125,7 +128,6 @@ func (m *UDPMuxDefault) RemoveConnByUfrag(ufrag string) {
 		addresses := c.getAddresses()
 		for _, addr := range addresses {
 			delete(m.addressMap, addr)
-			fmt.Printf("removed conn %s\n", addr)
 		}
 	}
 }
