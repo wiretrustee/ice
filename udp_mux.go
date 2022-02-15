@@ -1,7 +1,6 @@
 package ice
 
 import (
-	"fmt"
 	"github.com/pion/stun"
 	"io"
 	"net"
@@ -86,7 +85,6 @@ func (m *UDPMuxDefault) GetConn(ufrag string) (net.PacketConn, error) {
 	}
 
 	if c, ok := m.conns[ufrag]; ok {
-		fmt.Printf("found conn for ufrag %s\n", ufrag)
 		return c, nil
 	}
 
@@ -196,8 +194,7 @@ func (m *UDPMuxDefault) registerConnForAddress(conn *udpMuxedConn, addr string) 
 	}
 	m.addressMap[addr] = conn
 
-	//m.params.Logger.Debugf("Registered %s for %s", addr, conn.params.Key)
-	fmt.Printf("Registered %s for %s\n", addr, conn.params.Key)
+	m.params.Logger.Debugf("Registered %s for %s", addr, conn.params.Key)
 }
 
 func (m *UDPMuxDefault) createMuxedConn(key string) *udpMuxedConn {
@@ -269,12 +266,10 @@ func (m *UDPMuxDefault) connWorker() {
 		}
 
 		if destinationConn == nil {
-			fmt.Printf("dropping packet from %s, addr: %s\n", udpAddr.String(), addr.String())
 			m.params.Logger.Tracef("dropping packet from %s, addr: %s", udpAddr.String(), addr.String())
 			continue
 		}
 
-		fmt.Printf("received packet from %s\n", udpAddr.String())
 		if err = destinationConn.writePacket(buf[:n], udpAddr); err != nil {
 			m.params.Logger.Errorf("could not write packet: %v", err)
 		}
