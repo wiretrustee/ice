@@ -11,11 +11,9 @@
 
 name: Lint
 on:
-  pull_request:
-    types:
-      - opened
-      - edited
-      - synchronize
+  push:
+    branches:
+      - *
 jobs:
   lint-commit-message:
     name: Metadata
