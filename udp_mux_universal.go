@@ -75,6 +75,8 @@ type udpConn struct {
 	logger logging.LeveledLogger
 }
 
+// GetRelayedAddr creates relayed connection to the given TURN service and returns the relayed addr.
+// Not implemented yet.
 func (m *UniversalUDPMuxDefault) GetRelayedAddr(turnAddr net.Addr, deadline time.Duration) (*net.Addr, error) {
 	return nil, fmt.Errorf("not implemented yet")
 }
