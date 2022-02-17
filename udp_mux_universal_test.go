@@ -1,3 +1,6 @@
+//go:build !js
+// +build !js
+
 package ice
 
 import (
@@ -93,7 +96,9 @@ func testMuxSrflxConnection(t *testing.T, udpMux *UniversalUDPMuxDefault, ufrag 
 		IP:   testXORIP,
 		Port: testXORPort,
 	}
-	addr.AddTo(msg)
+	err = addr.AddTo(msg)
+	require.NoError(t, err)
+
 	msg.Encode()
 	_, err = remoteConn.Write(msg.Raw)
 	require.NoError(t, err)
