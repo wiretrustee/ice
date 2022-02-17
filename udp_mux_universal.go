@@ -78,7 +78,7 @@ type udpConn struct {
 // GetRelayedAddr creates relayed connection to the given TURN service and returns the relayed addr.
 // Not implemented yet.
 func (m *UniversalUDPMuxDefault) GetRelayedAddr(turnAddr net.Addr, deadline time.Duration) (*net.Addr, error) {
-	return nil, fmt.Errorf("not implemented yet")
+	return nil, errNotImplemented
 }
 
 // GetConnForURL add uniques to the muxed connection by concatenating ufrag and URL (e.g. STUN URL) to be able to support multiple STUN/TURN servers
@@ -120,7 +120,7 @@ func (c *udpConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
 			return
 		}
 	}
-	return
+	return n, addr, err
 }
 
 // isXORMappedResponse indicates whether the message is a XORMappedAddress and is coming from the known STUN server.
@@ -141,7 +141,7 @@ func (m *UniversalUDPMuxDefault) handleXORMappedResponse(stunAddr *net.UDPAddr, 
 
 	mappedAddr, ok := m.xorMappedMap[stunAddr.String()]
 	if !ok {
-		return fmt.Errorf("no address map for %s", stunAddr.String())
+		return errNoXorAddrMapping
 	}
 
 	var addr stun.XORMappedAddress
@@ -162,7 +162,7 @@ func (m *UniversalUDPMuxDefault) handleXORMappedResponse(stunAddr *net.UDPAddr, 
 func (m *UniversalUDPMuxDefault) GetXORMappedAddr(serverAddr net.Addr, deadline time.Duration) (*stun.XORMappedAddress, error) {
 	m.mu.Lock()
 	mappedAddr, ok := m.xorMappedMap[serverAddr.String()]
-	// if we already have a mapping for this STUN server (address already recieved)
+	// if we already have a mapping for this STUN server (address already received)
 	// and if it is not too old we return it without making a new request to STUN server
 	if ok {
 		if mappedAddr.expired() {
@@ -182,7 +182,7 @@ func (m *UniversalUDPMuxDefault) GetXORMappedAddr(serverAddr net.Addr, deadline 
 	// or wait for already sent request to complete
 	waitAddrReceived, err := m.sendStun(serverAddr)
 	if err != nil {
-		return nil, fmt.Errorf("could not send STUN request: %v", err)
+		return nil, errSendSTUNPacket
 	}
 
 	// block until response was handled by the connWorker routine and XORMappedAddress was updated
@@ -193,11 +193,11 @@ func (m *UniversalUDPMuxDefault) GetXORMappedAddr(serverAddr net.Addr, deadline 
 		mappedAddr := *m.xorMappedMap[serverAddr.String()]
 		m.mu.Unlock()
 		if mappedAddr.addr == nil {
-			return nil, fmt.Errorf("no XORMappedAddress for %s", serverAddr.String())
+			return nil, errNoXorAddrMapping
 		}
 		return mappedAddr.addr, nil
 	case <-time.After(deadline):
-		return nil, fmt.Errorf("timeout while waiting for XORMappedAddr")
+		return nil, errXORMappedAddrTimeout
 	}
 }
 
@@ -210,7 +210,7 @@ func (m *UniversalUDPMuxDefault) sendStun(serverAddr net.Addr) (chan struct{}, e
 	defer m.mu.Unlock()
 
 	// if record present in the map, we already sent a STUN request,
-	// just wait when waitAddrRecieved will be closed
+	// just wait when waitAddrReceived will be closed
 	addrMap, ok := m.xorMappedMap[serverAddr.String()]
 	if !ok {
 		addrMap = &xorMapped{

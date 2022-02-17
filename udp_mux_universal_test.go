@@ -64,8 +64,8 @@ func testMuxSrflxConnection(t *testing.T, udpMux *UniversalUDPMuxDefault, ufrag 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		address, err := udpMux.GetXORMappedAddr(remoteConn.LocalAddr(), time.Second)
-		require.NoError(t, err)
+		address, e := udpMux.GetXORMappedAddr(remoteConn.LocalAddr(), time.Second)
+		require.NoError(t, e)
 		require.NotNil(t, address)
 		require.True(t, address.IP.Equal(testXORIP))
 		require.Equal(t, address.Port, testXORPort)
