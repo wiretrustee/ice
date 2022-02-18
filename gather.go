@@ -347,9 +347,6 @@ func (a *Agent) gatherCandidatesSrflxUDPMux(ctx context.Context, urls []*URL, ne
 		}
 
 		for i := range urls {
-			if !(urls[i].Scheme == SchemeTypeSTUN || urls[i].Scheme == SchemeTypeSTUNS) {
-				continue
-			}
 			wg.Add(1)
 			go func(url URL, network string) {
 				defer wg.Done()

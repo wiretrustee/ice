@@ -1,3 +1,6 @@
+//go:build !js
+// +build !js
+
 package ice
 
 import (
@@ -61,8 +64,8 @@ func testMuxSrflxConnection(t *testing.T, udpMux *UniversalUDPMuxDefault, ufrag 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		address, err := udpMux.GetXORMappedAddr(remoteConn.LocalAddr(), time.Second)
-		require.NoError(t, err)
+		address, e := udpMux.GetXORMappedAddr(remoteConn.LocalAddr(), time.Second)
+		require.NoError(t, e)
 		require.NotNil(t, address)
 		require.True(t, address.IP.Equal(testXORIP))
 		require.Equal(t, address.Port, testXORPort)
@@ -93,7 +96,9 @@ func testMuxSrflxConnection(t *testing.T, udpMux *UniversalUDPMuxDefault, ufrag 
 		IP:   testXORIP,
 		Port: testXORPort,
 	}
-	addr.AddTo(msg)
+	err = addr.AddTo(msg)
+	require.NoError(t, err)
+
 	msg.Encode()
 	_, err = remoteConn.Write(msg.Raw)
 	require.NoError(t, err)
